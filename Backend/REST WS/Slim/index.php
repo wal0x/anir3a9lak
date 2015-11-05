@@ -65,7 +65,7 @@ $app->get ( '/infos/', function () {
         } catch ( PDOException $e ) {
         }
 } );
-// GET info from the database by sid
+// GET info from the database by id
 $app->get ( '/infos/id/:id', function ($id) {
         $sql = "select * FROM infos WHERE id=:id";
         try {
@@ -116,7 +116,92 @@ $app->get ( '/infos/notation/:notation', function ($notation) {
         } catch ( PDOException $e ) {
         }
 } );
-
+// GET all infos from the database by channel
+$app->get ( '/infos/channel/:idchannel', function ($idchannel) {
+        $sql = "select * FROM infos WHERE id_channel=:idchannel";
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "idchannel", $idchannel );
+                $stmt->execute ();
+                $infos = $stmt->fetchAll ( PDO::FETCH_OBJ );
+                $db = null;
+                if ($infos) {
+                        echo json_encode ( $infos );
+                } else {
+                }
+        } catch ( PDOException $e ) {
+        }
+} );
+// GET all infos from the database by admin
+$app->get ( '/infos/admin/:idadmin', function ($idadmin) {
+        $sql = "select * FROM infos WHERE id_administrateur=:idadmin";
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "idadmin", $idadmin );
+                $stmt->execute ();
+                $infos = $stmt->fetchAll ( PDO::FETCH_OBJ );
+                $db = null;
+                if ($infos) {
+                        echo json_encode ( $infos );
+                } else {
+                }
+        } catch ( PDOException $e ) {
+        }
+} );
+// GET all admins from the database
+$app->get ( '/admins/', function () {
+        $sql = "select * FROM administrateurs";
+        try {
+                $db = getConnection ();
+                $stmt = $db->query ( $sql );
+                $employees = $stmt->fetchAll ( PDO::FETCH_OBJ );
+                $db = null;
+                echo json_encode ( $employees );
+        } catch ( PDOException $e ) {
+        }
+} );
+// GET admin from the database by id
+$app->get ( '/admins/id/:id', function ($id) {
+        $sql = "select * FROM administrateurs WHERE id=:id";
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "id", $id );
+                $stmt->execute ();
+                $infos = $stmt->fetchAll ( PDO::FETCH_OBJ );
+                $db = null;
+                if ($infos) {
+                        echo json_encode ( $infos );
+                } else {
+                }
+        } catch ( PDOException $e ) {
+        }
+} );
+// GET admin from the database by login
+$app->get ( '/admins/login/:login', function ($login) {
+        $sql = "select * FROM administrateurs WHERE login=:login";
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "login", $login );
+                $stmt->execute ();
+                $infos = $stmt->fetchAll ( PDO::FETCH_OBJ );
+                $db = null;
+                if ($infos) {
+                        echo json_encode ( $infos );
+                } else {
+                }
+        } catch ( PDOException $e ) {
+        }
+} );
+/****************************************************
+ *                                                  *
+ *                   POST ROUTE                     *
+ *                                                  *
+ ****************************************************
+ */
 // POST route
 $app->post(
     '/post',
@@ -124,6 +209,46 @@ $app->post(
         echo 'This is a POST route';
     }
 );
+//new info
+$app->post ( '/infos', function () use($app) {
+        $request = \Slim\Slim::getInstance ()->request ();
+        $info = json_decode ( $request->getBody () );
+        $sql = "INSERT INTO infos (title , content,  id_channel, id_administrateur)
+                        VALUES (:e1, :e2, :e4, :e5)";
+       
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "e1", $info->title );
+                $stmt->bindParam ( "e2", $info->content );
+                $stmt->bindParam ( "e4", $info->id_channel );
+                $stmt->bindParam ( "e5", $info->id_administrateur );
+                $stmt->execute ();
+                $db = null;
+               
+        } catch ( PDOException $e ) {
+        }
+} );
+
+//new user
+$app->post ( '/users', function () use($app) {
+        $request = \Slim\Slim::getInstance ()->request ();
+        $user = json_decode ( $request->getBody () );
+
+        $sql = "INSERT INTO users (idGCM)
+                        VALUES (:e1)";
+       
+        try {
+                $db = getConnection ();
+                $stmt = $db->prepare ( $sql );
+                $stmt->bindParam ( "e1", $user->idGCM );
+                $stmt->execute ();
+                $db = null;
+               
+        } catch ( PDOException $e ) {
+        }
+} );
+
 
 // PUT route
 $app->put(
